@@ -1,0 +1,65 @@
+# ============================================================
+# .htaccess — Dashboard Holística
+# Hostinger / Apache compatible
+# ============================================================
+
+Options -Indexes
+Options -MultiViews
+
+# Ativar mod_rewrite
+RewriteEngine On
+
+# Redireciona / para index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^$ index.php [L]
+
+# Proteção: bloqueia acesso direto a config e auth
+<FilesMatch "^(config|auth)\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia helpers PHP internos
+<FilesMatch "^_.*\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia acesso a arquivos de cache temporários
+<FilesMatch "\.(cache|log|sql|bak|tmp)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Headers de segurança
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), camera=(), microphone=()"
+</IfModule>
+
+# Cache de assets estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css            "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/png           "access plus 1 month"
+    ExpiresByType image/jpeg          "access plus 1 month"
+    ExpiresByType image/svg+xml       "access plus 1 month"
+</IfModule>
+
+# Compressão GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
+</IfModule>
+
+# PHP settings (Hostinger)
+<IfModule mod_php8.c>
+    php_value session.cookie_httponly 1
+    php_value session.use_strict_mode 1
+    php_value display_errors 0
+    php_value log_errors 1
+</IfModule>
